@@ -14,7 +14,7 @@ const FOOTER_LINKS = [
   {
     heading: "시작하기",
     links: [
-      { label: "분석 시작", href: ROUTES.analyze },
+      { label: "분석 시작", href: ROUTES.analyzer },
       { label: "회원가입", href: ROUTES.signup },
       { label: "로그인", href: ROUTES.login },
       { label: "매매일지", href: ROUTES.journal },

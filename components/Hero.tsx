@@ -28,7 +28,7 @@ export default function Hero() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href={ROUTES.analyze}
+              href={ROUTES.analyzer}
               className="w-full rounded-xl bg-brand-500 px-7 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-brand-600 sm:w-auto"
             >
               무료로 분석 시작하기

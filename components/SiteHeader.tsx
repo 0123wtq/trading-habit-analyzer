@@ -46,7 +46,7 @@ export default function SiteHeader() {
             로그인
           </Link>
           <Link
-            href={ROUTES.analyze}
+            href={ROUTES.analyzer}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
           >
             분석 시작하기
@@ -100,7 +100,7 @@ export default function SiteHeader() {
               로그인
             </Link>
             <Link
-              href={ROUTES.analyze}
+              href={ROUTES.analyzer}
               onClick={() => setOpen(false)}
               className="mt-1 rounded-lg bg-brand-500 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-brand-600"
             >

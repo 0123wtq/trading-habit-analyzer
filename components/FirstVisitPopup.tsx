@@ -124,7 +124,7 @@ export default function FirstVisitPopup() {
 
         <div className="mt-7 flex flex-col gap-2">
           <Link
-            href={ROUTES.analyze}
+            href={ROUTES.analyzer}
             onClick={close}
             className="rounded-xl bg-brand-500 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-600"
           >
