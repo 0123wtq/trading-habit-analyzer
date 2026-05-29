@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Toast from "@/components/Toast";
@@ -14,15 +14,24 @@ import {
   saveAnalysisHistory,
 } from "@/lib/analysis";
 
-type TabKey = "paste" | "journal";
+type TabKey = "paste" | "capture" | "journal";
 
 const SUPPORTED_FORMATS = [
   { name: "키움증권 일지", icon: "📘" },
   { name: "미래에셋 거래원", icon: "📗" },
   { name: "삼성증권 내역", icon: "📙" },
+  { name: "토스증권 캡처", icon: "📱" },
+  { name: "증권사 캡처 이미지", icon: "🖼️" },
   { name: "CSV 데이터", icon: "📄" },
   { name: "직접 입력", icon: "✍️" },
 ];
+
+/** 캡처 업로드 허용 이미지 확장자 */
+const CAPTURE_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
+
+/** 증권사 연동 미연동 안내 */
+const NO_LINK_NOTICE =
+  "본 서비스는 증권사 계좌와 직접 연동하지 않습니다. 사용자가 직접 입력하거나 업로드한 거래내역을 바탕으로 매매 습관을 분석합니다.";
 
 const CAUTIONS = [
   "시간대별 승률 분석을 위해 거래 시각 정보가 함께 입력되는 것이 좋습니다.",
@@ -40,6 +49,19 @@ export default function AnalyzerPage() {
   const [input, setInput] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 캡처 업로드 상태 (브라우저 미리보기 전용 — 서버 전송/저장 없음)
+  const captureInputRef = useRef<HTMLInputElement>(null);
+  const [capturePreview, setCapturePreview] = useState<string | null>(null);
+  const [captureName, setCaptureName] = useState<string>("");
+  const [masked, setMasked] = useState(false);
+
+  // 미리보기용 object URL 정리
+  useEffect(() => {
+    return () => {
+      if (capturePreview) URL.revokeObjectURL(capturePreview);
+    };
+  }, [capturePreview]);
 
   const lineCount = useMemo(
     () => input.split(/\r?\n/).filter((l) => l.trim().length > 0).length,
@@ -85,6 +107,35 @@ export default function AnalyzerPage() {
     router.push(ROUTES.report);
   };
 
+  // 캡처 이미지 선택 — 브라우저에서 미리보기만 (서버 업로드 없음)
+  const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setToast("이미지 파일(jpg, png, webp)만 올릴 수 있습니다.");
+      if (captureInputRef.current) captureInputRef.current.value = "";
+      return;
+    }
+    if (capturePreview) URL.revokeObjectURL(capturePreview);
+    setCapturePreview(URL.createObjectURL(file));
+    setCaptureName(file.name);
+    setMasked(false);
+  };
+
+  const removeCapture = () => {
+    if (capturePreview) URL.revokeObjectURL(capturePreview);
+    setCapturePreview(null);
+    setCaptureName("");
+    setMasked(false);
+    if (captureInputRef.current) captureInputRef.current.value = "";
+  };
+
+  const captureAnalyze = () => {
+    setToast(
+      "캡처 OCR 분석은 준비 중입니다. 현재는 거래내역 붙여넣기 또는 CSV 업로드를 이용해주세요."
+    );
+  };
+
   return (
     <>
       <SiteHeader />
@@ -104,7 +155,10 @@ export default function AnalyzerPage() {
               직접 적어 내려간 내 매매 기록
             </span>
             <h1 className="mt-6 transform-none text-4xl font-black not-italic leading-[1.15] tracking-tight text-ink md:text-6xl">
-              매매 패턴 <span className="text-brand-600 underline decoration-accent-400 decoration-4 underline-offset-8">분석기</span>
+              매매 패턴{" "}
+              <span className="inline-block transform-none not-italic text-brand-600 underline decoration-accent-400 decoration-2 underline-offset-8">
+                분석기
+              </span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.8] tracking-wide text-ink/75">
               거래내역을 직접 붙여넣거나, 매일 기록한 매매일지를 불러와
@@ -141,7 +195,7 @@ export default function AnalyzerPage() {
               <button
                 type="button"
                 onClick={() => setTab("paste")}
-                className={`flex-1 rounded-lg px-4 py-3 text-[15px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${
+                className={`flex-1 rounded-lg px-3 py-3 text-[14px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] sm:px-4 sm:text-[15px] ${
                   tab === "paste"
                     ? "bg-brand-500 text-white shadow-warm"
                     : "text-ink/55 hover:bg-white hover:text-brand-600"
@@ -151,8 +205,19 @@ export default function AnalyzerPage() {
               </button>
               <button
                 type="button"
+                onClick={() => setTab("capture")}
+                className={`flex-1 rounded-lg px-3 py-3 text-[14px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] sm:px-4 sm:text-[15px] ${
+                  tab === "capture"
+                    ? "bg-brand-500 text-white shadow-warm"
+                    : "text-ink/55 hover:bg-white hover:text-brand-600"
+                }`}
+              >
+                캡처 업로드
+              </button>
+              <button
+                type="button"
                 onClick={() => setTab("journal")}
-                className={`flex-1 rounded-lg px-4 py-3 text-[15px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${
+                className={`flex-1 rounded-lg px-3 py-3 text-[14px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] sm:px-4 sm:text-[15px] ${
                   tab === "journal"
                     ? "bg-brand-500 text-white shadow-warm"
                     : "text-ink/55 hover:bg-white hover:text-brand-600"
@@ -164,7 +229,7 @@ export default function AnalyzerPage() {
 
             {/* 탭 콘텐츠 */}
             <div className="mt-6">
-              {tab === "paste" ? (
+              {tab === "paste" && (
                 <div className="animate-fade-in">
                   <label
                     htmlFor="trade-input"
@@ -197,7 +262,111 @@ export default function AnalyzerPage() {
                     )}
                   </p>
                 </div>
-              ) : (
+              )}
+
+              {tab === "capture" && (
+                <div className="animate-fade-in rounded-xl border-2 border-warm-300 bg-white p-6 shadow-warm sm:p-7">
+                  <h3 className="text-lg font-bold tracking-wide text-ink">
+                    증권사 캡처 업로드
+                  </h3>
+                  <p className="mt-2 text-[15px] leading-[1.8] tracking-wide text-ink/70">
+                    토스증권, 키움증권, 미래에셋 등 거래내역 화면을 캡처해 올릴
+                    수 있어요.
+                  </p>
+
+                  {/* 민감정보 안내 */}
+                  <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-accent-50/70 px-4 py-3 text-[14px] leading-[1.7] tracking-wide text-accent-900/80">
+                    <span aria-hidden>🔒</span>
+                    계좌번호, 이름, 주민번호, 총자산 등 민감정보는 가리고
+                    올려주세요.
+                  </div>
+
+                  {/* 이미지 업로드 input */}
+                  <input
+                    ref={captureInputRef}
+                    type="file"
+                    accept={CAPTURE_ACCEPT}
+                    onChange={handleCapture}
+                    className="hidden"
+                  />
+
+                  {!capturePreview ? (
+                    <button
+                      type="button"
+                      onClick={() => captureInputRef.current?.click()}
+                      className="mt-5 flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-warm-400 bg-warm-50 px-6 py-10 text-center transition-colors hover:border-brand-300 hover:bg-brand-50/40"
+                    >
+                      <span className="text-3xl" aria-hidden>
+                        🖼️
+                      </span>
+                      <span className="text-[15px] font-bold tracking-wide text-brand-600">
+                        캡처 이미지 선택
+                      </span>
+                      <span className="text-xs tracking-wide text-ink/50">
+                        jpg · jpeg · png · webp
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="mt-5">
+                      {/* 미리보기 (브라우저에서만, 서버 전송 없음) */}
+                      <div className="overflow-hidden rounded-xl border border-warm-300 bg-warm-50">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={capturePreview}
+                          alt="업로드한 거래내역 캡처 미리보기"
+                          className="mx-auto max-h-80 w-auto object-contain"
+                        />
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <span className="truncate text-xs tracking-wide text-ink/55">
+                          {captureName}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={removeCapture}
+                          className="flex-shrink-0 rounded-lg border border-warm-300 bg-white px-3 py-1.5 text-xs font-bold tracking-wide text-ink/60 transition-colors hover:bg-warm-50"
+                        >
+                          이미지 제거
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 민감정보 가림 확인 체크박스 */}
+                  <label className="mt-5 flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={masked}
+                      onChange={(e) => setMasked(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-warm-400 text-brand-500 focus:ring-brand-400"
+                    />
+                    <span className="text-[14px] leading-[1.7] tracking-wide text-ink/75">
+                      민감정보를 가렸습니다.
+                    </span>
+                  </label>
+
+                  {/* 캡처 분석 버튼 (준비 중) */}
+                  <button
+                    type="button"
+                    onClick={captureAnalyze}
+                    disabled={!masked}
+                    className="mt-4 w-full rounded-xl bg-brand-500 px-6 py-4 text-base font-bold tracking-wide text-white shadow-warm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-600 hover:shadow-warm-lg active:translate-y-0 disabled:cursor-not-allowed disabled:bg-warm-400 disabled:shadow-none disabled:hover:translate-y-0"
+                  >
+                    캡처 분석 준비 중
+                  </button>
+                  {!masked && (
+                    <p className="mt-2 text-center text-xs tracking-wide text-ink/50">
+                      민감정보를 가렸는지 확인 후 체크해 주세요.
+                    </p>
+                  )}
+
+                  <p className="mt-5 border-t border-warm-200 pt-4 text-xs leading-[1.7] tracking-wide text-ink/55">
+                    {NO_LINK_NOTICE}
+                  </p>
+                </div>
+              )}
+
+              {tab === "journal" && (
                 <div className="cut-edge paper-tilt-r animate-fade-in rounded-xl border-2 border-warm-400 bg-white p-9 text-center shadow-warm">
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-50 text-2xl">
                     📒
