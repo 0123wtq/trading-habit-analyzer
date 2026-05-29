@@ -43,7 +43,7 @@ export default function AnalyzerPage() {
   const loadSample = () => {
     setInput(SAMPLE_DATA);
     setTab("paste");
-    setToast("샘플 데이터를 불러왔습니다.");
+    setToast("샘플 데이터를 불러왔어요. 편하게 둘러보세요 🙂");
   };
 
   const runAnalysis = () => {
@@ -56,45 +56,63 @@ export default function AnalyzerPage() {
   return (
     <>
       <SiteHeader />
-      <main className="min-h-screen bg-slate-50">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* 이 페이지만 따뜻한 오프화이트 톤으로 감쌈 (다른 페이지 영향 없음) */}
+      <main className="relative min-h-screen bg-warm-100 leading-[1.8] text-ink">
+        {/* 부드러운 배경 얼룩 — 손으로 칠한 느낌 */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -left-24 top-10 h-64 w-64 rounded-full bg-brand-200/30 blur-3xl" />
+          <div className="absolute -right-20 top-52 h-72 w-72 rounded-full bg-accent-200/30 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
           {/* 페이지 헤더 */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              매매 패턴 분석기
+          <div className="animate-warm-rise text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent-200 bg-accent-50 px-4 py-1.5 text-sm font-semibold tracking-wide text-accent-700 shadow-sm">
+              <span aria-hidden>✍️</span>
+              직접 적어 내려간 내 매매 기록
+            </span>
+            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+              매매 패턴 <span className="hand-underline text-brand-600">분석기</span>
             </h1>
-            <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600">
-              거래내역을 직접 붙여넣거나, 매일 기록한 매매일지를 불러와 나의
-              매매 습관을 분석할 수 있습니다.
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.8] tracking-wide text-ink/75">
+              거래내역을 직접 붙여넣거나, 매일 기록한 매매일지를 불러와
+              <br className="hidden sm:block" />
+              나의 매매 습관을 찬찬히 들여다볼 수 있어요.
             </p>
           </div>
 
-          {/* 상단 안내 카드 */}
-          <div className="mt-8 rounded-2xl border border-brand-200 bg-brand-50 p-5">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">💡</span>
-              <div className="text-sm leading-relaxed text-brand-800">
-                <p className="font-semibold">분석은 약 1분이면 끝납니다.</p>
-                <p className="mt-1 text-brand-700">
-                  거래 시각·종목·매수/매도·수익률이 포함될수록 더 정확한 습관
-                  리포트를 받아볼 수 있습니다. 데이터가 없다면 아래{" "}
-                  <span className="font-semibold">샘플 데이터 불러오기</span>로
-                  먼저 체험해 보세요.
+          {/* 상단 안내 카드 — 메모지 느낌 */}
+          <div className="paper-tilt mt-10 rounded-xl border border-brand-100 bg-white p-6 shadow-warm">
+            <div className="flex items-start gap-4">
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 text-2xl">
+                💡
+              </span>
+              <div className="leading-[1.8] tracking-wide">
+                <p className="text-base font-bold text-ink">
+                  분석은 약 <span className="marker-accent">1분</span>이면 끝나요.
+                </p>
+                <p className="mt-2 text-[15px] text-ink/70">
+                  거래 시각·종목·매수/매도·수익률이 함께 있을수록 더 정확한 습관
+                  리포트를 받아볼 수 있어요. 아직 기록이 없다면 아래{" "}
+                  <span className="font-semibold text-brand-600">
+                    샘플 데이터 불러오기
+                  </span>
+                  로 먼저 가볍게 체험해 보세요.
                 </p>
               </div>
             </div>
           </div>
 
           {/* 분석 방식 탭 */}
-          <div className="mt-8">
-            <div className="flex gap-2 rounded-xl bg-slate-100 p-1">
+          <div className="mt-12">
+            <div className="flex gap-2 rounded-xl border border-warm-300 bg-warm-50 p-1.5 shadow-sm">
               <button
                 type="button"
                 onClick={() => setTab("paste")}
-                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                className={`flex-1 rounded-lg px-4 py-3 text-[15px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${
                   tab === "paste"
-                    ? "bg-white text-brand-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-brand-500 text-white shadow-warm"
+                    : "text-ink/55 hover:bg-white hover:text-brand-600"
                 }`}
               >
                 거래내역 붙여넣기
@@ -102,10 +120,10 @@ export default function AnalyzerPage() {
               <button
                 type="button"
                 onClick={() => setTab("journal")}
-                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                className={`flex-1 rounded-lg px-4 py-3 text-[15px] font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${
                   tab === "journal"
-                    ? "bg-white text-brand-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-brand-500 text-white shadow-warm"
+                    : "text-ink/55 hover:bg-white hover:text-brand-600"
                 }`}
               >
                 내 매매일지 불러오기
@@ -113,12 +131,12 @@ export default function AnalyzerPage() {
             </div>
 
             {/* 탭 콘텐츠 */}
-            <div className="mt-5">
+            <div className="mt-6">
               {tab === "paste" ? (
-                <div>
+                <div className="animate-fade-in">
                   <label
                     htmlFor="trade-input"
-                    className="block text-sm font-semibold text-slate-700"
+                    className="block text-[15px] font-bold tracking-wide text-ink"
                   >
                     거래내역 입력
                   </label>
@@ -128,30 +146,41 @@ export default function AnalyzerPage() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={PLACEHOLDER}
                     rows={10}
-                    className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-white p-4 font-mono text-sm leading-relaxed text-slate-800 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                    className="mt-3 w-full resize-y rounded-xl border-2 border-warm-300 bg-white p-5 font-mono text-[15px] leading-[1.8] text-ink shadow-warm outline-none transition-all duration-200 placeholder:text-ink/35 hover:border-brand-200 focus:border-brand-400 focus:shadow-warm-lg focus:ring-4 focus:ring-brand-100"
                   />
-                  <p className="mt-2 text-xs text-slate-500">
-                    {lineCount > 0
-                      ? `${lineCount}줄 입력됨`
-                      : "입력이 없어도 샘플 리포트로 분석을 체험할 수 있습니다."}
+                  <p className="mt-3 flex items-center gap-1.5 text-sm tracking-wide text-ink/55">
+                    {lineCount > 0 ? (
+                      <>
+                        <span aria-hidden>📝</span>
+                        <span className="font-semibold text-brand-600">
+                          {lineCount}줄
+                        </span>{" "}
+                        입력됐어요.
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden>🙂</span>
+                        입력이 없어도 샘플 리포트로 먼저 체험할 수 있어요.
+                      </>
+                    )}
                   </p>
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-xl">
+                <div className="cut-edge paper-tilt-r animate-fade-in rounded-xl border-2 border-warm-400 bg-white p-9 text-center shadow-warm">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-50 text-2xl">
                     📒
                   </div>
-                  <h3 className="mt-4 text-base font-semibold text-slate-800">
-                    매매일지 연동은 준비 중입니다
+                  <h3 className="mt-5 text-lg font-bold tracking-wide text-ink">
+                    매매일지 연동은 준비 중이에요
                   </h3>
-                  <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-                    곧 저장된 매매일지를 바로 불러올 수 있게 됩니다. 지금은 샘플
-                    일지를 불러와 분석을 체험해 보세요.
+                  <p className="mx-auto mt-3 max-w-md text-[15px] leading-[1.8] tracking-wide text-ink/65">
+                    곧 저장해 둔 매매일지를 바로 불러올 수 있게 됩니다. 지금은
+                    샘플 일지를 불러와 분석을 체험해 보세요.
                   </p>
                   <button
                     type="button"
                     onClick={loadSample}
-                    className="mt-5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    className="mt-6 rounded-xl border-2 border-brand-200 bg-white px-5 py-3 text-[15px] font-bold tracking-wide text-brand-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-warm active:translate-y-0"
                   >
                     샘플 일지 불러오기
                   </button>
@@ -161,15 +190,17 @@ export default function AnalyzerPage() {
           </div>
 
           {/* 지원 형식 안내 카드 */}
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
-            <h3 className="text-sm font-semibold text-slate-700">지원 형식</h3>
-            <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-10 rounded-xl border border-warm-300 bg-white p-6 shadow-warm">
+            <h3 className="text-[15px] font-bold tracking-wide text-ink">
+              이런 형식을 지원해요
+            </h3>
+            <div className="mt-4 flex flex-wrap gap-2.5">
               {SUPPORTED_FORMATS.map((f) => (
                 <span
                   key={f.name}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-brand-50/60 px-3.5 py-2 text-sm font-medium tracking-wide text-brand-700 transition-colors hover:bg-brand-100"
                 >
-                  <span>{f.icon}</span>
+                  <span aria-hidden>{f.icon}</span>
                   {f.name}
                 </span>
               ))}
@@ -177,44 +208,55 @@ export default function AnalyzerPage() {
           </div>
 
           {/* 액션 버튼 */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={loadSample}
-              className="w-full rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:w-auto"
+              className="w-full rounded-xl border-2 border-brand-200 bg-white px-6 py-4 text-base font-bold tracking-wide text-brand-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-warm active:translate-y-0 sm:w-auto"
             >
               샘플 데이터 불러오기
             </button>
             <button
               type="button"
               onClick={runAnalysis}
-              className="w-full flex-1 rounded-xl bg-brand-500 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
+              className="group w-full flex-1 rounded-xl bg-accent-500 px-6 py-4 text-base font-bold tracking-wide text-white shadow-warm transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-warm-lg active:translate-y-0"
             >
               분석 시작하기
+              <span
+                aria-hidden
+                className="ml-1.5 inline-block transition-transform duration-200 group-hover:translate-x-1"
+              >
+                →
+              </span>
             </button>
           </div>
 
-          {/* 주의사항 카드 */}
-          <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-            <h3 className="text-sm font-semibold text-amber-800">주의사항</h3>
-            <ul className="mt-3 space-y-2">
+          {/* 주의사항 카드 — 손으로 오린 종이 느낌 */}
+          <div className="cut-edge mt-10 rounded-xl border-2 border-accent-200 bg-accent-50/70 p-6">
+            <h3 className="flex items-center gap-2 text-[15px] font-bold tracking-wide text-accent-800">
+              <span aria-hidden>📌</span>
+              알아두면 좋아요
+            </h3>
+            <ul className="mt-4 space-y-3">
               {CAUTIONS.map((c) => (
                 <li
                   key={c}
-                  className="flex items-start gap-2 text-sm leading-relaxed text-amber-800"
+                  className="flex items-start gap-2.5 text-[15px] leading-[1.8] tracking-wide text-accent-900/80"
                 >
-                  <span className="mt-0.5 text-amber-500">•</span>
+                  <span className="mt-0.5 flex-shrink-0 text-accent-500" aria-hidden>
+                    ✓
+                  </span>
                   {c}
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-[15px] tracking-wide text-ink/60">
             바로 결과만 보고 싶으신가요?{" "}
             <Link
               href={ROUTES.report}
-              className="font-semibold text-brand-600 hover:text-brand-700"
+              className="font-bold text-brand-600 underline decoration-accent-300 decoration-2 underline-offset-4 transition-colors hover:text-brand-700"
             >
               샘플 리포트 보기 →
             </Link>
