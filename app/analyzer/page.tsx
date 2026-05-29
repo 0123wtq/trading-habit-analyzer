@@ -202,12 +202,16 @@ export default function AnalyzerPage() {
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-50 text-2xl">
                     📒
                   </div>
-                  <h3 className="mt-5 text-lg font-bold tracking-wide text-ink">
-                    매매일지 연동은 준비 중이에요
+                  <span className="mt-4 inline-block rounded-full bg-warm-200 px-3 py-1 text-xs font-bold tracking-wide text-ink/60">
+                    준비 중
+                  </span>
+                  <h3 className="mt-3 text-lg font-bold tracking-wide text-ink">
+                    매매일지 연동은 준비 중이에요.
                   </h3>
                   <p className="mx-auto mt-3 max-w-md text-[15px] leading-[1.8] tracking-wide text-ink/65">
-                    곧 저장해 둔 매매일지를 바로 불러올 수 있게 됩니다. 지금은
-                    샘플 일지를 불러와 분석을 체험해 보세요.
+                    곧 저장해 둔 매매일지를 불러와 바로 분석할 수 있게 됩니다.
+                    지금은 거래내역 붙여넣기, CSV 업로드, 샘플 데이터로 먼저
+                    분석해보세요.
                   </p>
                   <button
                     type="button"

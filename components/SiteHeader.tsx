@@ -7,6 +7,8 @@ import { ROUTES } from "@/lib/routes";
 
 const NAV_LINKS = [
   { label: "홈", href: ROUTES.home },
+  // 위험도 테스트는 /risk-test, /risk-result 양쪽에서 활성으로 표시
+  { label: "위험도 테스트", href: ROUTES.riskTest, matchPrefixes: [ROUTES.riskResult] },
   { label: "매매 분석기", href: ROUTES.analyzer },
   { label: "샘플 리포트", href: ROUTES.report },
   { label: "계산기", href: ROUTES.calculators },
@@ -22,8 +24,11 @@ export default function SiteHeader() {
   const pathname = usePathname();
 
   /** 현재 경로가 해당 메뉴인지 (홈은 정확히 일치, 나머지는 prefix 허용) */
-  const isActive = (href: string) =>
-    href === ROUTES.home ? pathname === href : pathname.startsWith(href);
+  const isActive = (href: string, matchPrefixes?: string[]) => {
+    if (href === ROUTES.home) return pathname === href;
+    if (pathname.startsWith(href)) return true;
+    return (matchPrefixes ?? []).some((p) => pathname.startsWith(p));
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/70 bg-white/80 backdrop-blur">
@@ -48,7 +53,7 @@ export default function SiteHeader() {
         {/* 데스크톱 내비게이션 */}
         <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => {
-            const active = isActive(link.href);
+            const active = isActive(link.href, link.matchPrefixes);
             return (
               <Link
                 key={link.label}
@@ -116,7 +121,7 @@ export default function SiteHeader() {
         <div className="border-t border-slate-200 bg-white md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
             {NAV_LINKS.map((link) => {
-              const active = isActive(link.href);
+              const active = isActive(link.href, link.matchPrefixes);
               return (
                 <Link
                   key={link.label}

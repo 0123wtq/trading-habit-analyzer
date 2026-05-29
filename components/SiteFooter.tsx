@@ -5,6 +5,7 @@ const FOOTER_LINKS = [
   {
     heading: "제품",
     links: [
+      { label: "계좌 위험도 테스트", href: ROUTES.riskTest },
       { label: "매매 패턴 분석기", href: ROUTES.analyzer },
       { label: "투자 계산기 모음", href: ROUTES.calculators },
       { label: "샘플 리포트", href: ROUTES.report },

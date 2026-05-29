@@ -10,6 +10,8 @@
  */
 export const ROUTES = {
   home: "/",
+  riskTest: "/risk-test",
+  riskResult: "/risk-result",
   analyzer: "/analyzer",
   report: "/report",
   calculators: "/calculators",
