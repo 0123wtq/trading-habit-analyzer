@@ -20,11 +20,17 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-xs font-bold text-white">
-                돈길
+              <span
+                aria-hidden
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-base font-black text-white"
+              >
+                ₩
               </span>
-              <span className="text-base font-bold text-slate-900">
-                돈길
+              <span className="flex flex-col leading-tight">
+                <span className="text-base font-bold text-slate-900">돈길</span>
+                <span className="text-xs text-slate-500">
+                  돈의 길목을 알려준다
+                </span>
               </span>
             </div>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500">

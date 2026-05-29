@@ -13,6 +13,10 @@ const NAV_LINKS = [
   { label: "요금제", href: ROUTES.pricing },
 ];
 
+/** 돈의 길목(MoneyRoad) 유튜브 채널 */
+const YOUTUBE_URL =
+  "https://www.youtube.com/@%EB%8F%88%EC%9D%98%EA%B8%B8%EB%AA%A9MoneyRoad";
+
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -24,12 +28,20 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/70 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href={ROUTES.home} className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-xs font-bold text-white">
-            돈길
+        <Link href={ROUTES.home} className="flex items-center gap-2.5">
+          <span
+            aria-hidden
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-base font-black text-white"
+          >
+            ₩
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-900">
-            돈길
+          <span className="flex flex-col leading-tight">
+            <span className="text-base font-bold tracking-tight text-slate-900">
+              돈길
+            </span>
+            <span className="text-xs text-slate-500">
+              돈의 길목을 알려준다
+            </span>
           </span>
         </Link>
 
@@ -57,7 +69,15 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
+          <a
+            href={YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50"
+          >
+            유튜브 채널
+          </a>
           <Link
             href={ROUTES.analyzer}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
@@ -113,6 +133,15 @@ export default function SiteHeader() {
                 </Link>
               );
             })}
+            <a
+              href={YOUTUBE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              유튜브 채널
+            </a>
             <Link
               href={ROUTES.analyzer}
               onClick={() => setOpen(false)}
