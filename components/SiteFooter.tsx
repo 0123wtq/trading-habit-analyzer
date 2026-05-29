@@ -20,11 +20,11 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
-                TH
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-xs font-bold text-white">
+                돈길
               </span>
               <span className="text-base font-bold text-slate-900">
-                트레이딩 습관 분석기
+                돈길
               </span>
             </div>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500">
@@ -56,7 +56,7 @@ export default function SiteFooter() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-6 sm:flex-row">
           <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} 트레이딩 습관 분석기. All rights
+            © {new Date().getFullYear()} 돈길. All rights
             reserved.
           </p>
           <p className="text-xs text-slate-400">

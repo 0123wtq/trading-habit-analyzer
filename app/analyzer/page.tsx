@@ -96,15 +96,15 @@ export default function AnalyzerPage() {
           <div className="absolute -right-20 top-52 h-72 w-72 rounded-full bg-accent-200/30 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-3xl px-4 pb-14 pt-28 sm:px-6 sm:pt-32 lg:px-8">
           {/* 페이지 헤더 */}
-          <div className="animate-warm-rise text-center">
+          <div className="overflow-visible text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-accent-200 bg-accent-50 px-4 py-1.5 text-sm font-semibold tracking-wide text-accent-700 shadow-sm">
               <span aria-hidden>✍️</span>
               직접 적어 내려간 내 매매 기록
             </span>
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-              매매 패턴 <span className="hand-underline text-brand-600">분석기</span>
+            <h1 className="mt-6 transform-none text-4xl font-black not-italic leading-[1.15] tracking-tight text-ink md:text-6xl">
+              매매 패턴 <span className="text-brand-600 underline decoration-accent-400 decoration-4 underline-offset-8">분석기</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.8] tracking-wide text-ink/75">
               거래내역을 직접 붙여넣거나, 매일 기록한 매매일지를 불러와
