@@ -9,6 +9,7 @@ export const ROUTES = {
   home: "/",
   analyzer: "/analyzer",
   report: "/report",
+  calculators: "/calculators",
   dashboard: "/dashboard",
   journal: "/journal",
   pricing: "/pricing",
