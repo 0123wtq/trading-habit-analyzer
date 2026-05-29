@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { ROUTES } from "@/lib/routes";
@@ -247,10 +247,70 @@ function CalcNote({ text }: { text: string }) {
   return <p className="mt-4 text-xs leading-relaxed text-slate-500">⚠ {text}</p>;
 }
 
+/** 입력값 부족 시 안내 문구 */
+function InputError({ message }: { message: string }) {
+  return (
+    <p className="mt-4 rounded-xl bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-300">
+      ⚠ {message}
+    </p>
+  );
+}
+
+/** 계산 / 초기화 버튼 행 */
+function ActionRow({
+  calcLabel,
+  onCalc,
+  onReset,
+}: {
+  calcLabel: string;
+  onCalc: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="mt-5 flex gap-3">
+      <button
+        type="button"
+        onClick={onCalc}
+        className="flex-1 rounded-xl bg-brand-500 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+      >
+        {calcLabel}
+      </button>
+      <button
+        type="button"
+        onClick={onReset}
+        className="rounded-xl border border-slate-700 bg-slate-800 px-5 py-3.5 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-700"
+      >
+        초기화
+      </button>
+    </div>
+  );
+}
+
+/** 결과 하단 — 매매 패턴 분석 유도 CTA */
+function ResultCta() {
+  return (
+    <Link
+      href={ROUTES.analyzer}
+      className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-brand-500/40 bg-brand-500/10 px-5 py-3.5 text-center text-sm font-semibold text-brand-300 transition-colors hover:bg-brand-500/20"
+    >
+      이 결과를 바탕으로 내 매매 패턴도 분석하기 →
+    </Link>
+  );
+}
+
 /** 입력 문자열을 number로. 빈값/비정상은 0 */
 function num(v: string): number {
   const n = Number(v.replace(/,/g, ""));
   return Number.isFinite(n) ? n : 0;
+}
+
+/** 결과 영역으로 부드럽게 스크롤 */
+function scrollToResult(el: HTMLElement | null) {
+  if (!el) return;
+  // 렌더 후 위치가 잡히도록 다음 프레임에 스크롤
+  requestAnimationFrame(() => {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
 }
 
 /* ================================================================== */
@@ -265,8 +325,16 @@ function RealReturnCalculator() {
   const [sellDate, setSellDate] = useState("");
   const [benchmark, setBenchmark] = useState("");
   const [result, setResult] = useState<RealReturnResult | null>(null);
+  const [error, setError] = useState("");
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const run = () => {
+    if (num(buyAmount) <= 0 || num(sellAmount) <= 0) {
+      setError("총 매수 금액과 매도 금액을 0보다 큰 값으로 입력해 주세요.");
+      setResult(null);
+      return;
+    }
+    setError("");
     setResult(
       calcRealReturn({
         assetType,
@@ -275,6 +343,18 @@ function RealReturnCalculator() {
         benchmarkPct: benchmark.trim() === "" ? null : num(benchmark),
       })
     );
+    scrollToResult(resultRef.current);
+  };
+
+  const reset = () => {
+    setAssetType("domestic");
+    setBuyAmount("");
+    setSellAmount("");
+    setBuyDate("");
+    setSellDate("");
+    setBenchmark("");
+    setResult(null);
+    setError("");
   };
 
   const interpretation: string[] = [];
@@ -353,16 +433,12 @@ function RealReturnCalculator() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={run}
-        className="mt-5 w-full rounded-xl bg-brand-500 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
-      >
-        실수익률 진단하기
-      </button>
+      <ActionRow calcLabel="실수익률 진단하기" onCalc={run} onReset={reset} />
+
+      {error && <InputError message={error} />}
 
       {result && (
-        <>
+        <div ref={resultRef}>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
             <ResultCard
               label="명목 수익"
@@ -397,7 +473,8 @@ function RealReturnCalculator() {
             )}
           </div>
           <Interpretation lines={interpretation} />
-        </>
+          <ResultCta />
+        </div>
       )}
 
       <CalcNote text="세금·수수료는 단순 추정치입니다. 실제 부과 기준은 거래소·증권사·과세 제도에 따라 달라질 수 있습니다." />
@@ -420,8 +497,16 @@ function LiquidationCalculator() {
   const [margin, setMargin] = useState("");
   const [extraMargin, setExtraMargin] = useState("");
   const [result, setResult] = useState<LiquidationResult | null>(null);
+  const [error, setError] = useState("");
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const run = () => {
+    if (num(entryPrice) <= 0 || num(leverage) <= 0 || num(margin) <= 0) {
+      setError("진입 가격·레버리지·지정 증거금을 0보다 큰 값으로 입력해 주세요.");
+      setResult(null);
+      return;
+    }
+    setError("");
     setResult(
       calcLiquidation({
         side,
@@ -431,6 +516,17 @@ function LiquidationCalculator() {
         extraMargin: num(extraMargin),
       })
     );
+    scrollToResult(resultRef.current);
+  };
+
+  const reset = () => {
+    setSide("long");
+    setEntryPrice("");
+    setLeverage("");
+    setMargin("");
+    setExtraMargin("");
+    setResult(null);
+    setError("");
   };
 
   return (
@@ -489,16 +585,12 @@ function LiquidationCalculator() {
         </Field>
       </div>
 
-      <button
-        type="button"
-        onClick={run}
-        className="mt-5 w-full rounded-xl bg-brand-500 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
-      >
-        청산 위험 계산하기
-      </button>
+      <ActionRow calcLabel="청산 위험 계산하기" onCalc={run} onReset={reset} />
+
+      {error && <InputError message={error} />}
 
       {result && (
-        <>
+        <div ref={resultRef}>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
             <ResultCard
               label="추정 강제 청산가격"
@@ -525,7 +617,8 @@ function LiquidationCalculator() {
               "레버리지가 높을수록 작은 가격 변동에도 포지션이 크게 흔들릴 수 있습니다.",
             ]}
           />
-        </>
+          <ResultCta />
+        </div>
       )}
 
       <CalcNote text="단순화된 MVP 공식입니다. 실제 청산가는 거래소의 유지증거금률, 수수료, 펀딩 등에 따라 달라집니다." />
@@ -543,8 +636,16 @@ function FundingCalculator() {
   const [fundingRate, setFundingRate] = useState("");
   const [holdDays, setHoldDays] = useState("");
   const [result, setResult] = useState<FundingResult | null>(null);
+  const [error, setError] = useState("");
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const run = () => {
+    if (num(positionSize) <= 0 || num(fundingRate) <= 0 || num(holdDays) <= 0) {
+      setError("포지션 크기·펀딩비율·보유 기간을 0보다 큰 값으로 입력해 주세요.");
+      setResult(null);
+      return;
+    }
+    setError("");
     setResult(
       calcFunding({
         side,
@@ -553,6 +654,16 @@ function FundingCalculator() {
         holdDays: num(holdDays),
       })
     );
+    scrollToResult(resultRef.current);
+  };
+
+  const reset = () => {
+    setSide("long");
+    setPositionSize("");
+    setFundingRate("");
+    setHoldDays("");
+    setResult(null);
+    setError("");
   };
 
   return (
@@ -604,16 +715,12 @@ function FundingCalculator() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={run}
-        className="mt-5 w-full rounded-xl bg-brand-500 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
-      >
-        펀딩피 계산하기
-      </button>
+      <ActionRow calcLabel="펀딩피 계산하기" onCalc={run} onReset={reset} />
+
+      {error && <InputError message={error} />}
 
       {result && (
-        <>
+        <div ref={resultRef}>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
             <ResultCard
               label="누적 추정 펀딩 비용"
@@ -639,7 +746,8 @@ function FundingCalculator() {
               "포지션을 오래 보유할수록 방향을 맞혀도 펀딩 비용이 수익을 갉아먹을 수 있습니다.",
             ]}
           />
-        </>
+          <ResultCta />
+        </div>
       )}
 
       <CalcNote text="펀딩비는 8시간마다 변동하며 방향(롱/숏)에 따라 수취가 될 수도 있습니다. 본 계산은 지불 기준 단순 추정입니다." />

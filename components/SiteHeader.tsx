@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ROUTES } from "@/lib/routes";
 
@@ -14,6 +15,11 @@ const NAV_LINKS = [
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  /** 현재 경로가 해당 메뉴인지 (홈은 정확히 일치, 나머지는 prefix 허용) */
+  const isActive = (href: string) =>
+    href === ROUTES.home ? pathname === href : pathname.startsWith(href);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/70 bg-white/80 backdrop-blur">
@@ -29,15 +35,26 @@ export default function SiteHeader() {
 
         {/* 데스크톱 내비게이션 */}
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-brand-600"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={`relative text-sm font-medium transition-colors ${
+                  active
+                    ? "font-semibold text-brand-600"
+                    : "text-slate-600 hover:text-brand-600"
+                }`}
+              >
+                {link.label}
+                {active && (
+                  <span className="absolute -bottom-[21px] left-0 h-0.5 w-full rounded-full bg-brand-500" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -78,16 +95,24 @@ export default function SiteHeader() {
       {open && (
         <div className="border-t border-slate-200 bg-white md:hidden">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-brand-50 font-semibold text-brand-700"
+                      : "text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
               href={ROUTES.analyzer}
               onClick={() => setOpen(false)}

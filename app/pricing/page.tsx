@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import Toast from "@/components/Toast";
+import Modal from "@/components/Modal";
 import { ROUTES } from "@/lib/routes";
 
 /**
@@ -149,10 +149,10 @@ function CheckIcon({ className = "" }: { className?: string }) {
 }
 
 export default function PricingPage() {
-  const [toast, setToast] = useState<string | null>(null);
+  const [proModalOpen, setProModalOpen] = useState(false);
 
   const handleMockCheckout = () => {
-    setToast("결제 기능은 추후 연결 예정입니다.");
+    setProModalOpen(true);
   };
 
   return (
@@ -386,7 +386,61 @@ export default function PricingPage() {
         </section>
       </main>
       <SiteFooter />
-      <Toast message={toast} onDismiss={() => setToast(null)} />
+
+      {/* Pro 안내 모달 (실제 결제 미연결) */}
+      <Modal
+        open={proModalOpen}
+        onClose={() => setProModalOpen(false)}
+        labelledBy="pro-modal-title"
+      >
+        <button
+          type="button"
+          onClick={() => setProModalOpen(false)}
+          aria-label="닫기"
+          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-3xl">
+          ✨
+        </div>
+        <h2
+          id="pro-modal-title"
+          className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900"
+        >
+          Pro 기능은 준비 중입니다.
+        </h2>
+        <p className="mt-3 text-center text-sm leading-relaxed text-slate-600">
+          현재 MVP에서는 결제가 진행되지 않습니다. 정식 오픈 시 무제한 분석,
+          전체 기간 리포트, 감정·진입 근거 분석 기능을 제공할 예정입니다.
+        </p>
+        <div className="mt-7 flex flex-col gap-2">
+          <Link
+            href={ROUTES.analyzer}
+            onClick={() => setProModalOpen(false)}
+            className="rounded-xl bg-brand-500 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+          >
+            무료 분석 먼저 하기
+          </Link>
+          <button
+            type="button"
+            onClick={() => setProModalOpen(false)}
+            className="rounded-xl px-5 py-2.5 text-center text-sm font-medium text-slate-500 transition-colors hover:text-slate-700"
+          >
+            닫기
+          </button>
+        </div>
+      </Modal>
     </>
   );
 }

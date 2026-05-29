@@ -11,6 +11,12 @@
 /** 분석 결과를 저장하는 localStorage 키 */
 export const ANALYSIS_STORAGE_KEY = "tha_analysis_result";
 
+/** 분석 기록(최근 N개)을 저장하는 localStorage 키 — 추후 대시보드에서 사용 */
+export const ANALYSIS_HISTORY_KEY = "analysis_history";
+
+/** 분석 기록 보관 최대 개수 */
+export const ANALYSIS_HISTORY_LIMIT = 5;
+
 /** /analyzer 샘플 데이터 불러오기 버튼에 사용되는 예시 거래내역 */
 export const SAMPLE_DATA = `2026.04.10 09:12:05 삼성전자 매수 78,500원 100주
 2026.05.10 09:45:00 삼성전자 매도 68,200원 100주 -13.12%
@@ -395,4 +401,77 @@ export function loadAnalysis(): AnalysisResult | null {
   } catch {
     return null;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* 분석 기록 (최근 5개) — 추후 대시보드용                              */
+/* ------------------------------------------------------------------ */
+
+export interface AnalysisHistoryEntry {
+  /** 분석 시각(ISO) */
+  analyzedAt: string;
+  /** 입력 원문 일부(미리보기용, 최대 200자) */
+  inputPreview: string;
+  totalTrades: number;
+  winRatePct: number;
+  avgReturnPct: number;
+  profitFactor: number;
+  maxLossLabel: string;
+  /** 전체 리포트 데이터 */
+  report: AnalysisResult;
+}
+
+/**
+ * 분석 결과를 기록 배열에 추가한다. (최신이 앞, 최대 ANALYSIS_HISTORY_LIMIT개)
+ * 추후 대시보드에서 바로 읽어 쓸 수 있도록 구조화해 저장한다.
+ */
+export function saveAnalysisHistory(
+  result: AnalysisResult,
+  rawInput: string
+): void {
+  try {
+    const entry: AnalysisHistoryEntry = {
+      analyzedAt: result.analyzedAt,
+      inputPreview: (rawInput ?? "").trim().slice(0, 200),
+      totalTrades: result.summary.totalTrades,
+      winRatePct: result.winRate.winRatePct,
+      avgReturnPct: result.summary.avgReturnPct,
+      profitFactor: result.summary.profitFactor,
+      maxLossLabel: result.lossDetail.maxTradeLabel,
+      report: result,
+    };
+
+    const prev = loadAnalysisHistory();
+    const next = [entry, ...prev].slice(0, ANALYSIS_HISTORY_LIMIT);
+    window.localStorage.setItem(ANALYSIS_HISTORY_KEY, JSON.stringify(next));
+  } catch {
+    // 저장 실패는 무시
+  }
+}
+
+/** 분석 기록을 최신순으로 읽음 */
+export function loadAnalysisHistory(): AnalysisHistoryEntry[] {
+  try {
+    const raw = window.localStorage.getItem(ANALYSIS_HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as AnalysisHistoryEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * 공유문구를 만든다. 현재 사이트 origin을 포함해 배포 URL이 바뀌어도
+ * 자동 반영되게 한다. (origin을 못 구하면 인자로 받은 기본값 사용)
+ */
+export function buildShareText(origin?: string): string {
+  const base =
+    origin ||
+    (typeof window !== "undefined" ? window.location.origin : "") ||
+    "https://trading-habit-analyzer.vercel.app";
+  return `🔥 내 최대 투자 실수: [장 초반 뇌동매매와 충동적 진입] 😭
+매매 기록을 분석해봤더니 충격적인 결과가 나왔습니다.
+나도 내 매매 습관을 확인해보기:
+${base}/analyzer`;
 }

@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Toast from "@/components/Toast";
 import { ROUTES } from "@/lib/routes";
 import {
   AnalysisResult,
+  buildShareText,
   getFallbackAnalysis,
   loadAnalysis,
 } from "@/lib/analysis";
+
+/** 파일명용 날짜: 20260529 */
+function todayStamp(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`;
+}
 
 /** 통화 포맷: -979092 → "-979,092원" */
 function formatWon(n: number): string {
@@ -39,6 +47,9 @@ function formatDateTime(iso: string): string {
 export default function ReportPage() {
   const [data, setData] = useState<AnalysisResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  /** 이미지로 캡처할 리포트 핵심 영역 */
+  const captureRef = useRef<HTMLDivElement>(null);
 
   // localStorage에서 분석 결과를 읽고, 없으면 fallback 샘플 리포트를 사용
   useEffect(() => {
@@ -46,15 +57,16 @@ export default function ReportPage() {
   }, []);
 
   const copyShareText = async () => {
-    if (!data) return;
+    // 현재 사이트 origin을 포함한 공유문구 (배포 URL 자동 반영)
+    const shareText = buildShareText();
     try {
-      await navigator.clipboard.writeText(data.shareText);
+      await navigator.clipboard.writeText(shareText);
       setToast("공유문구가 복사되었습니다.");
     } catch {
       // 클립보드 API 미지원 시 폴백
       try {
         const ta = document.createElement("textarea");
-        ta.value = data.shareText;
+        ta.value = shareText;
         document.body.appendChild(ta);
         ta.select();
         document.execCommand("copy");
@@ -66,8 +78,26 @@ export default function ReportPage() {
     }
   };
 
-  const saveImage = () => {
-    setToast("이미지 저장 기능은 곧 제공 예정입니다.");
+  const saveImage = async () => {
+    if (!captureRef.current || saving) return;
+    setSaving(true);
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: "#f1f5f9",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = `trading-report-${todayStamp()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      setToast("리포트 이미지가 저장되었습니다.");
+    } catch {
+      setToast("이미지 저장 중 문제가 발생했습니다.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!data) {
@@ -82,7 +112,7 @@ export default function ReportPage() {
 
   return (
     <main className="min-h-screen bg-slate-100 pb-16">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div ref={captureRef} className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* 상단 헤더 */}
         <header className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -119,9 +149,10 @@ export default function ReportPage() {
               <button
                 type="button"
                 onClick={saveImage}
-                className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/20"
+                disabled={saving}
+                className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                이미지로 저장
+                {saving ? "저장 중…" : "이미지로 저장"}
               </button>
             </div>
           </div>

@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Toast from "@/components/Toast";
 import { ROUTES } from "@/lib/routes";
-import { SAMPLE_DATA, analyzeTrades, saveAnalysis } from "@/lib/analysis";
+import {
+  SAMPLE_DATA,
+  analyzeTrades,
+  saveAnalysis,
+  saveAnalysisHistory,
+} from "@/lib/analysis";
 
 type TabKey = "paste" | "journal";
 
@@ -34,6 +39,7 @@ export default function AnalyzerPage() {
   const [tab, setTab] = useState<TabKey>("paste");
   const [input, setInput] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const lineCount = useMemo(
     () => input.split(/\r?\n/).filter((l) => l.trim().length > 0).length,
@@ -46,10 +52,36 @@ export default function AnalyzerPage() {
     setToast("샘플 데이터를 불러왔어요. 편하게 둘러보세요 🙂");
   };
 
+  // CSV/TXT 파일을 읽어 textarea에 채운다.
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === "string" ? reader.result : "";
+      if (text.trim() === "") {
+        setToast("파일을 읽을 수 없습니다.");
+      } else {
+        setInput(text);
+        setTab("paste");
+        setToast("파일 내용을 불러왔습니다.");
+      }
+      // 같은 파일을 다시 선택해도 onChange가 발생하도록 초기화
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+    reader.onerror = () => {
+      setToast("파일을 읽을 수 없습니다.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+    reader.readAsText(file);
+  };
+
   const runAnalysis = () => {
     // 입력이 없어도 fallback 샘플 리포트가 생성됩니다.
     const result = analyzeTrades(input);
     saveAnalysis(result);
+    // 분석 기록(최근 5개) 저장 — 추후 대시보드용
+    saveAnalysisHistory(result, input);
     router.push(ROUTES.report);
   };
 
@@ -209,6 +241,20 @@ export default function AnalyzerPage() {
 
           {/* 액션 버튼 */}
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.txt,text/csv,text/plain"
+              onChange={handleFile}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full rounded-xl border-2 border-brand-200 bg-white px-6 py-4 text-base font-bold tracking-wide text-brand-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-warm active:translate-y-0 sm:w-auto"
+            >
+              📎 CSV 파일 업로드
+            </button>
             <button
               type="button"
               onClick={loadSample}
