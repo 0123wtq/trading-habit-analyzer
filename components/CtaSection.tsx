@@ -18,10 +18,10 @@ export default function CtaSection() {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href={ROUTES.signup}
+                href={ROUTES.analyzer}
                 className="w-full rounded-xl bg-white px-7 py-3.5 text-base font-semibold text-brand-700 shadow-sm transition-colors hover:bg-brand-50 sm:w-auto"
               >
-                무료로 시작하기
+                무료로 분석 시작하기
               </Link>
               <Link
                 href={ROUTES.pricing}

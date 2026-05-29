@@ -5,19 +5,10 @@ const FOOTER_LINKS = [
   {
     heading: "제품",
     links: [
-      { label: "기능", href: "#features" },
-      { label: "이용 방법", href: "#how-it-works" },
+      { label: "매매 패턴 분석기", href: ROUTES.analyzer },
+      { label: "투자 계산기 모음", href: ROUTES.calculators },
+      { label: "샘플 리포트", href: ROUTES.report },
       { label: "요금제", href: ROUTES.pricing },
-      { label: "대시보드", href: ROUTES.dashboard },
-    ],
-  },
-  {
-    heading: "시작하기",
-    links: [
-      { label: "분석 시작", href: ROUTES.analyzer },
-      { label: "회원가입", href: ROUTES.signup },
-      { label: "로그인", href: ROUTES.login },
-      { label: "매매일지", href: ROUTES.journal },
     ],
   },
 ];
@@ -26,8 +17,8 @@ export default function SiteFooter() {
   return (
     <footer className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div className="sm:col-span-2">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
                 TH

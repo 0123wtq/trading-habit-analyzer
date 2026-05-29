@@ -34,10 +34,10 @@ export default function Hero() {
               무료로 분석 시작하기
             </Link>
             <Link
-              href={ROUTES.dashboard}
+              href={ROUTES.report}
               className="w-full rounded-xl border border-slate-300 bg-white px-7 py-3.5 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:w-auto"
             >
-              데모 둘러보기
+              샘플 리포트 보기
             </Link>
           </div>
 

@@ -5,8 +5,10 @@ import { useState } from "react";
 import { ROUTES } from "@/lib/routes";
 
 const NAV_LINKS = [
-  { label: "기능", href: "#features" },
-  { label: "이용 방법", href: "#how-it-works" },
+  { label: "홈", href: ROUTES.home },
+  { label: "매매 분석기", href: ROUTES.analyzer },
+  { label: "샘플 리포트", href: ROUTES.report },
+  { label: "계산기", href: ROUTES.calculators },
   { label: "요금제", href: ROUTES.pricing },
 ];
 
@@ -39,12 +41,6 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href={ROUTES.login}
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-brand-600"
-          >
-            로그인
-          </Link>
           <Link
             href={ROUTES.analyzer}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
@@ -92,13 +88,6 @@ export default function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href={ROUTES.login}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              로그인
-            </Link>
             <Link
               href={ROUTES.analyzer}
               onClick={() => setOpen(false)}
